@@ -1,0 +1,60 @@
+#include <IRremote.h>
+const int IRpin=9;
+IRrecv IR(IRpin);
+decode_results cmd;
+ 
+#include <Servo.h>
+const int servoPin=4;
+int IRServoVal=90;
+String myCom;
+Servo myServo;
+ 
+int pazPin=A0;
+ 
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  IR.enableIRIn();
+  myServo.attach(servoPin);
+  myServo.write(IRServoVal);
+ 
+  pinMode(pazPin,OUTPUT);
+   
+  Serial.println("Press UP, DOWN or VOL-.");
+  Serial.println("up = 30 degrees to the right");
+  Serial.println("down = 30 degrees to the left");
+  Serial.println("vol- = 90 degrees");
+}
+ 
+void loop() {
+  // put your main code here, to run repeatedly:
+  while (IR.decode(&cmd)==0){ 
+}
+  Serial.println(cmd.value,HEX);
+  delay(1500);
+  IR.resume();
+ 
+  if(cmd.value==0xFF906F ){
+    myCom="UP";
+    Serial.println(myCom);
+    IRServoVal=IRServoVal-30;
+    myServo.write(IRServoVal);
+    tone(pazPin,255);
+    delay(600);
+    noTone(pazPin);
+  }
+ 
+  if(cmd.value==0xFFE01F ){
+    myCom="DOWN";
+    Serial.println(myCom);
+    IRServoVal=IRServoVal+30;
+    myServo.write(IRServoVal);
+  }
+ 
+  if(cmd.value==0xFFA857 ){
+    myCom="VOL-";
+    Serial.println(myCom);
+    IRServoVal=90;
+    myServo.write(IRServoVal);
+  }
+}
